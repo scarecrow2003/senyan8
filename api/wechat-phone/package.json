@@ -1,0 +1,11 @@
+{
+  "name": "wechat-phone",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "axios": "^1.8.4",
+    "crypto": "^1.0.1",
+    "uuid": "^11.1.0"
+  }
+}
