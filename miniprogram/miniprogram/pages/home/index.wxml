@@ -1,0 +1,9 @@
+<view class="container">
+  <!-- <image src="/images/banner.jpg" mode="widthFix" /> -->
+  <view class="menu">
+    <navigator url="/pages/products/index">🌸 View Flowers</navigator>
+  </view>
+  <view>
+    <button bindtap="logout">退出</button>
+  </view>
+</view>

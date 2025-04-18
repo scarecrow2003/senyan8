@@ -1,0 +1,85 @@
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal {
+  background-color: white;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 20rpx;
+  gap: 200rpx;
+}
+
+.userinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #aaa;
+  width: 80%;
+}
+.avatar-wrapper {
+  padding: 0;
+  width: 128px !important;
+  border-radius: 8px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+.avatar {
+  display: block;
+  width: 128px;
+  height: 128px;
+}
+.nickname-wrapper {
+  display: flex;
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  border-top: .5px solid rgba(0, 0, 0, 0.1);
+  border-bottom: .5px solid rgba(0, 0, 0, 0.1);
+  color: black;
+}
+.nickname-label {
+  width: 80px;
+}
+.nickname-input {
+  flex: 1;
+}
+.phone-wrapper {
+  display: flex;
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  border-top: .5px solid rgba(0, 0, 0, 0.1);
+  border-bottom: .5px solid rgba(0, 0, 0, 0.1);
+  color: black;
+}
+.phone-label {
+  width: 80px;
+}
+.phone-box {
+  flex: 1;
+}
+.get-info {
+  flex: 1;
+  font-size: 15px;
+  padding: 5rpx;
+  height: 50rpx;
+  background-color: green;
+  color: white;
+}

@@ -1,0 +1,72 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/products/index",
+    "pages/cart/index",
+    "pages/setting/index",
+    "pages/checkout/index",
+    "pages/orders/index",
+    "pages/orders/order-detail",
+    "pages/address/index",
+    "pages/address/add",
+    "pages/index/index",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom",
+    "navigationBarTitleText": "Senyan 8",
+    "navigationBarBackgroundColor": "#ffffff"
+  },
+  "tabBar": {
+    "color": "#6e6d6b",
+    "selectedColor": "#ff3456",
+    "borderStyle": "white",
+    "backgroundColor": "#fff",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "iconPath": "images/nav/icon-index-b.png",
+        "selectedIconPath": "images/nav/icon-index-r.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/products/index",
+        "iconPath": "images/nav/icon-cate-off.png",
+        "selectedIconPath": "images/nav/icon-cate-on.png",
+        "text": "产品"
+      },
+      {
+        "pagePath": "pages/cart/index",
+        "iconPath": "images/nav/icon-cart-b.png",
+        "selectedIconPath": "images/nav/icon-cart-r.png",
+        "text": "购物车"
+      },
+      {
+        "pagePath": "pages/setting/index",
+        "iconPath": "images/nav/icon-center-b.png",
+        "selectedIconPath": "images/nav/icon-center-r.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "tagNameStyleIsolation": "legacy",
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于展示地图导航"
+    }
+  }
+}

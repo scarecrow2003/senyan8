@@ -1,0 +1,42 @@
+<navigation-bar title="森焱" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<view class="container">
+  <scroll-view>
+  <block wx:if="{{loading}}">
+    <view class="loading-wrap">
+      <image class="img" src="/images/icon/loading.gif"></image>
+      <view class="text">正在加载...</view>
+    </view>
+  </block>
+  <block wx:else>
+    <view class="product-list">
+      <block wx:for="{{displayItems}}" wx:key="id">
+        <view class="item horizontal" >
+          <image src="{{item.url}}" mode="widthFix" style="width: 200rpx;"/>
+          <view class="vertical" style="padding: 2rpx; margin-bottom: 2rpx; width: 450rpx;">
+            <view class="info vertical">
+              <text class="name">{{item.name}}</text>
+              <text class="description">{{item.description}}</text>
+            </view>
+            <view class="horizontal">
+              <text class="price">S${{item.price}}</text>
+              <block wx:if="{{item.quantity == 0}}">
+                <button class="add-btn" data-id="{{item.id}}" bindtap="addToCart">购买</button>
+              </block>
+              <block wx:else>
+                <view class="qty-controls">
+                  <button data-id="{{item.id}}" bindtap="decreaseQty">-</button>
+                  <text class="qty-text">{{item.quantity}}</text>
+                  <button data-id="{{item.id}}" bindtap="increaseQty">+</button>
+                </view>
+              </block>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+  </scroll-view>
+  <view class="confirm">
+    <button class="confirm-btn" bindtap="goToCart">选好了</button>
+  </view>
+</view>

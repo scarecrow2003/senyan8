@@ -1,0 +1,24 @@
+<navigation-bar title="添加地址" back="{{true}}" color="black" background="#FFF"></navigation-bar><view class="form">
+  <view class="form-item">
+    <text>邮政编码</text>
+    <input type="text" placeholder="请输入6位邮编" maxlength="6" bindinput="onPostalCodeInput" value="{{postalCode}}" />
+    <button size="mini" bindtap="getAddress">获取地址</button>
+  </view>
+
+  <view class="form-item">
+    <text>地址</text>
+    <input type="text" value="{{address}}" placeholder="点击按钮自动填写" disabled />
+  </view>
+
+  <view class="form-item">
+    <text>楼层</text>
+    <input type="text" placeholder="如：#08" bindinput="onLevelInput" value="{{level}}" />
+  </view>
+
+  <view class="form-item">
+    <text>单位号</text>
+    <input type="text" placeholder="如：12" bindinput="onUnitInput" value="{{unit}}" />
+  </view>
+
+  <button class="save-btn" bindtap="saveAddress">保存地址</button>
+</view>

@@ -1,0 +1,28 @@
+<block wx:if="{{showModal}}">
+  <view class="modal-mask">
+    <view class="modal">
+      <view class="userinfo">
+        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+          <image class="avatar" src="{{avatar}}"></image>
+        </button>
+        <view class="nickname-wrapper">
+          <text class="nickname-label">昵称</text>
+          <input type="nickname" class="nickname-input" placeholder="请输入昵称" bind:change="onInputChange" />
+        </view>
+        <view class="phone-wrapper">
+          <text class="phone-label">手机</text>
+          <block wx:if="{{phone}}">
+            <view class="phone-box">{{phone}}</view>
+          </block>
+          <block wx:else>
+            <button class="get-info" open-type="getPhoneNumber" bindgetphonenumber="onGetPhone">获取号码</button>
+          </block>
+        </view>
+      </view>
+      <view class="modal-actions">
+        <button size="mini" bindtap="cancel">取消</button>
+        <button size="mini" type="primary" bindtap="confirm" disabled="{{!hasUserInfo}}">确定</button>
+      </view>
+    </view>
+  </view>
+</block>

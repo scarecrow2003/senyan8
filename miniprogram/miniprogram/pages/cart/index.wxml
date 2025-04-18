@@ -1,0 +1,68 @@
+<navigation-bar title="购物车" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<view class="cart-page">
+  <block wx:if="{{cart.length > 0}}">
+    <view class="address" bindtap="addAddress">
+      <block wx:if="{{selectedAddress}}">
+        <view class="cart-address">
+          <text class="label">收货地址:</text>
+          <text class="value">{{selectedAddress.address}}</text>
+        </view>
+      </block>
+      <block wx:else>
+        <button>添加收货地址</button>
+      </block>
+    </view>
+    <block wx:for="{{cart}}" wx:key="id">
+      <view class="cart-item horizontal">
+        <image src="{{item.url}}" class="cart-image" mode="aspectFill" />
+        <view class="cart-info vertical">
+          <view class="horizontal">
+            <text class="cart-name">{{item.name}}</text>
+            <text class="price">S${{item.price}}</text>
+          </view>
+          <view class="qty-controls horizontal">
+            <button data-id="{{item.id}}" bindtap="decreaseQty">-</button>
+            <text class="qty-text">{{item.quantity}}</text>
+            <button data-id="{{item.id}}" bindtap="increaseQty">+</button>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view class="cart-summary">
+      <text>总价: S${{totalPrice}}</text>
+    </view>
+
+    <button class="checkout-btn" bindtap="goToCheckout">支付</button>
+
+    <!-- <block wx:else>
+      <button open-type="getPhoneNumber" class="checkout-btn" bindgetphonenumber="onGetPhone">支付</button>
+    </block> -->
+    <button class="clear-btn" bindtap="clearCart">🗑️ 清空购物车</button>
+  </block>
+  <block wx:else>
+    <view class="empty">🛒 您的购物车是空的</view>
+  </block>
+  <!-- Modal -->
+  <login-modal showModal="{{showModal}}" bind:closemodal="onCloseModal" bind:setuserinfo="setUserInfo"></login-modal>
+  <!-- <view wx:if="{{showModal}}" class="modal-mask">
+    <view class="modal">
+      <block wx:if="{{userInfo.name}}">
+        <input type="text" value="{{userInfo.name}}" bindinput="onNameInput" class="input-box"/>
+      </block>
+      <block wx:else>
+        <button bindtap="getUserProfile">获取用户信息</button>
+      </block>
+      <block wx:if="{{userInfo.phone}}">
+        <view>{{userInfo.phone}}</view>
+      </block>
+      <block wx:else>
+        <button open-type="getPhoneNumber" bindgetphonenumber="onGetPhone">获取手机号码</button>
+      </block>
+      <view class="modal-actions">
+        <button size="mini" bindtap="cancel">取消</button>
+        <button size="mini" type="primary" bindtap="confirm" disabled="{{!userInfo.name || !userInfo.phone || !userInfo.openid}}">确定</button>
+      </view>
+    </view>
+  </view> -->
+</view>

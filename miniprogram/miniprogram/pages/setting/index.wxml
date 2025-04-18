@@ -1,0 +1,26 @@
+<navigation-bar title="个人中心" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<block wx:if="{{!userInfo.name || !userInfo.openid || !userInfo.name}}">
+  <view class="container">
+    <button class="login-btn" bindtap="login">登录</button>
+  </view>
+</block>
+<block wx:else>
+  <view class="container">
+    <view class="profile-card">
+      <image class="avatar" src="{{userInfo.avatar}}" mode="aspectFill" />
+      <view class="info">
+        <view class="name">{{userInfo.name}}</view>
+        <view class="phone">{{userInfo.phone}}</view>
+      </view>
+    </view>
+    <view class="menu">
+      <navigator url="/pages/orders/index" class="menu-item">
+        <text class="icon">🛒</text>
+        <text>我的订单</text>
+      </navigator>
+    </view>
+    <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+  </view>
+</block>
+<!-- Modal -->
+<login-modal showModal="{{showModal}}" bind:closemodal="onCloseModal" bind:setuserinfo="setUserInfo"></login-modal>

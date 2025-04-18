@@ -1,0 +1,37 @@
+<navigation-bar title="支付" back="{{true}}}" color="black" background="#FFF"></navigation-bar>
+<view class="checkout-page">
+  <block wx:if="{{cart.length > 0}}">
+    <view class="summary">
+      <!-- Cart items here like before -->
+      <block wx:for="{{cart}}" wx:key="id">
+        <view class="item horizontal">
+          <text>{{item.name}}</text>
+          <text>x{{item.quantity}}</text>
+          <text>S${{item.price * item.quantity}}</text>
+        </view>
+      </block>
+
+      <view class="total">
+        <text>总价: S${{totalPrice}}</text>
+      </view>
+    </view>
+
+    <view class="paynow-section">
+      <text class="qr-title">请用PayNow扫码支付</text>
+      <view>
+        <canvas canvas-id="paynowQrcode" class="qr-code"></canvas>
+      </view>
+      <text class="qr-note">请用您的银行App扫码支付</text>
+      <block wx:if="{{qrcodeSaved}}">
+        <button class="confirm-btn" bindtap="confirmPayment">我已支付</button>
+      </block>
+      <block wx:else>
+        <button class="save-btn" bindtap="saveQrcode">点击保存二维码到手机</button>
+      </block>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="empty">Cart is empty. Please add some flowers 🌸</view>
+  </block>
+</view>

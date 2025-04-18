@@ -1,0 +1,1 @@
+<navigation-bar title="订单详情" back="{{true}}" color="black" background="#FFF"></navigation-bar>

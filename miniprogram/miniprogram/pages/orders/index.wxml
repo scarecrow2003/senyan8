@@ -1,0 +1,20 @@
+<navigation-bar title="我的订单" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+<view class="order-list">
+  <block wx:if="{{!orders || orders.length == 0}}">
+    <view>无订单</view>
+  </block>
+  <block wx:else>
+    <block wx:for="{{orders}}" wx:key="id">
+      <view class="order-item horizontal">
+        <view class="vertical" bindtap="goToOrderDetail" data-id="{{item.id}}">
+          <text>定单号: {{item.invoice}}</text>
+          <text>价格: ${{item.total_price}}</text>
+          <text>下单时间: {{item.created_at}}</text>
+        </view>
+        <view>
+          <button class="detail">查看详情</button>
+        </view>
+      </view>
+    </block>
+  </block>
+</view>
