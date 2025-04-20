@@ -2,7 +2,7 @@
 <view class="cart-page">
   <block wx:if="{{cart.length > 0}}">
     <view class="address" bindtap="addAddress">
-      <block wx:if="{{selectedAddress}}">
+      <block wx:if="{{selectedAddress.address}}">
         <view class="cart-address">
           <text class="label">收货地址:</text>
           <text class="value">{{selectedAddress.address}}</text>
@@ -33,11 +33,8 @@
       <text>总价: S${{totalPrice}}</text>
     </view>
 
-    <button class="checkout-btn" bindtap="goToCheckout">支付</button>
+    <button class="checkout-btn" bindtap="goToCheckout" disabled="{{!selectedAddress.address}}">支付</button>
 
-    <!-- <block wx:else>
-      <button open-type="getPhoneNumber" class="checkout-btn" bindgetphonenumber="onGetPhone">支付</button>
-    </block> -->
     <button class="clear-btn" bindtap="clearCart">🗑️ 清空购物车</button>
   </block>
   <block wx:else>

@@ -2,6 +2,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
+  category: string;
   url: string;
   sn: string;
   price: number;
@@ -16,6 +17,7 @@ export interface UserInfo {
   phone: string;
   name: string;
   avatar: string;
+  role: string;
 }
 
 export interface Address {

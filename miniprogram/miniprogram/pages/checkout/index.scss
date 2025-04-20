@@ -40,11 +40,50 @@
   padding: 24rpx;
   border-radius: 12rpx;
 }
-.item {
-  margin: 20rpx;
+.summary {
+  padding: 20rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
 }
-.total {
-  margin: 20rpx;
+.invoice {
+  font-weight: bold;
+  font-size: 30rpx;
+  margin-bottom: 24rpx;
+  color: #333;
+}
+.item-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+.item-name {
+  flex: 2;
+  color: #444;
+}
+.item-qty {
+  flex: 1;
+  text-align: center;
+  color: #888;
+}
+.item-price {
+  flex: 1;
+  text-align: right;
+  color: #111;
+  font-weight: 500;
+}
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #222;
+}
+.total-label {
+  color: #555;
+}
+.total-price {
+  color: #e53935;
 }

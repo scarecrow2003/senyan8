@@ -8,9 +8,7 @@
     "pages/orders/index",
     "pages/orders/order-detail",
     "pages/address/index",
-    "pages/address/add",
-    "pages/index/index",
-    "pages/logs/logs"
+    "pages/address/add"
   ],
   "window": {
     "navigationBarTextStyle": "black",

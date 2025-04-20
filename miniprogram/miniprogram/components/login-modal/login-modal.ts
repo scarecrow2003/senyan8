@@ -31,24 +31,10 @@ Component({
       });
     },
 
-    // getUserProfile() {
-    //   wx.getUserProfile({
-    //     desc: '用于完善会员资料',
-    //     success: (res) => {
-    //       this.setData({
-    //         ...this.data,
-    //         name: res.userInfo.nickName
-    //       })
-    //     },
-    //     fail: (err) => {
-    //       console.log('User denied permission', err);
-    //     }
-    //   });
-    // },
-
     onGetPhone(e) {
       let that = this;
       if (e.detail.errMsg === 'getPhoneNumber:ok') {
+        wx.showLoading({ title: '加载中' })
         let { encryptedData, iv } = e.detail;
         wx.login({
           success(res) {
@@ -66,6 +52,7 @@ Component({
                 iv: iv
               },
               success(res) {
+                wx.hideLoading();
                 let { phone, openid } = res.data;
                 const hasUserInfo: boolean = !!(that.data.name && phone && openid && (that.data.avatar !== defaultAvatarUrl));
                 that.setData({
@@ -78,6 +65,7 @@ Component({
           }
         });
       } else {
+        wx.hideLoading();
         console.warn('User denied phone number access');
       }
     },
@@ -88,6 +76,7 @@ Component({
   
     confirm() {
       if (this.data.name && this.data.phone && this.data.openid) {
+        wx.showLoading({ title: '加载中' })
         let that = this;
         wx.request({
           url: url,
@@ -102,10 +91,12 @@ Component({
             name: this.data.name
           },
           success(res) {
-            const userInfo = { name: that.data.name, phone: that.data.phone, openid: that.data.openid, avatar: that.data.avatar };
+            wx.hideLoading();
+            const userInfo = { name: that.data.name, phone: that.data.phone, openid: that.data.openid, avatar: that.data.avatar, role: res.data.role };
             that.triggerEvent('setuserinfo', userInfo);
           },
           fail(res) {
+            wx.hideLoading();
             wx.showToast({
               title: '操作错误，请重试',
               icon: 'none',

@@ -1,5 +1,9 @@
+import { Order } from './types/types';
+
 App<IAppOption>({
-  globalData: {},
+  globalData: {
+    selectedOrder: {} as Order
+  },
   onLaunch() {
     
   },

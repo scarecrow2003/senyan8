@@ -1,7 +1,6 @@
 import { Product, CartItem } from '../../types/types';
 const config = require('../../utils/config');
 
-
 Page({
 
   /**
@@ -30,7 +29,9 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    wx.showLoading({ title: '加载中' })
     this.getProducts();
+    wx.hideLoading()
   },
 
   getProducts: function() {
@@ -58,12 +59,7 @@ Page({
       fail: function(err) {
           console.error(err);
       }
-  })
-    //  util.request(url).then((res: { data: { products: any; }; }) => {
-    //         this.setData({
-    //             product: res.data
-    //         });
-    //     });
+    })
   },
 
   /**

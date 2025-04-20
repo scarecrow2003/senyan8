@@ -10,6 +10,7 @@ Page({
   data: {
     cart: <CartItem[]>[],
     totalPrice: 0,
+    invoice: '',
     qrcodeSaved: false,
     hasUserInfo: false
   },
@@ -57,20 +58,21 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad() {
+  onLoad(options) {
+    wx.showLoading({ title: '加载中' })
     const cart: CartItem[] = wx.getStorageSync('cart') || [];
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = options.price;
+    const invoice = options.invoice;
     const paynow = new PaynowQR({
-      mobile: '+6596463268',        // or use 'mobile' or 'nric'
-      amount: 99.00,
-      refNumber: 'ORDER1001',
+      mobile: '+6596463268',
+      amount: total,
+      refNumber: invoice,
       editable: false,
       company: 'MyName'
     });
 
-    const payload = paynow.output(); // EMV string to encode
+    const payload = paynow.output();
 
-    // draw QR code to canvas
     drawQrcode({
       width: 250,
       height: 250,
@@ -88,8 +90,11 @@ Page({
     this.setData({
       cart,
       totalPrice: total,
+      invoice: invoice,
       qrcodeSaved: false
     });
+    wx.setStorageSync('cart', []);
+    wx.hideLoading();
   },
 
   /**

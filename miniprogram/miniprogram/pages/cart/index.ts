@@ -14,7 +14,8 @@ Page({
       name: '',
       phone: '',
       openid: '',
-      avatar: ''
+      avatar: '',
+      role: ''
     },
     showModal: false,
     selectedAddress: {} as Address
@@ -38,6 +39,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    wx.showLoading({ title: '加载中' })
     const userInfo: UserInfo = wx.getStorageSync('userInfo') || {};
     const address = getApp().globalData.selectedAddress;
     this.setData({
@@ -45,6 +47,7 @@ Page({
       userInfo: userInfo
     });
     this.loadCart();
+    wx.hideLoading()
   },
 
   loadCart() {
@@ -127,6 +130,7 @@ Page({
   },
 
   createOrder() {
+    wx.showLoading({ title: '加载中' })
     wx.request({
       url: url,
       method: 'POST',
@@ -135,16 +139,19 @@ Page({
       },
       data: {
         action: 'create_order',
-        address: encodeURIComponent(JSON.stringify(this.data.selectedAddress.address)),
+        address: encodeURIComponent(this.data.selectedAddress.address),
         openid: encodeURIComponent(this.data.userInfo.openid),
         name: encodeURIComponent(this.data.userInfo.name),
         phone: encodeURIComponent(this.data.userInfo.phone),
         items: this.data.cart.map(({ id, quantity }) => ({ id, quantity }))
       },
       success(res) {
+        wx.hideLoading();
         if (res.statusCode === 201) {
+          let invoice = res.data.invoice;
+          let price = res.data.price;
           wx.navigateTo({
-            url: '/pages/checkout/index'
+            url: `/pages/checkout/index?invoice=${invoice}&price=${price}`
           });
         } else {
           wx.showToast({
@@ -154,82 +161,11 @@ Page({
         }
       },
       fail(res) {
+        wx.hideLoading();
         wx.showToast({ title: '网络错误', icon: 'none' })
       }
     });
   },
-
-  // getUserProfile() {
-  //   console.log('Calling wx.getUserProfile');
-  //   wx.getUserProfile({
-  //     desc: '用于完善会员资料',
-  //     success: (res) => {
-  //       console.log('User Info:', res.userInfo);
-  //       let userInfo = {
-  //         ...this.data.userInfo,
-  //         name: res.userInfo.nickName
-  //       }
-  //       this.setData({
-  //         ...this.data,
-  //         userInfo
-  //       })
-  //     },
-  //     fail: (err) => {
-  //       console.log('User denied permission', err);
-  //     }
-  //   });
-  // },
-
-  // onGetPhone(e) {
-  //   let that = this;
-  //   if (e.detail.errMsg === 'getPhoneNumber:ok') {
-  //     let { encryptedData, iv } = e.detail;
-  //     wx.login({
-  //       success(res) {
-  //         const code = res.code;
-  //         wx.request({
-  //           url: 'https://7ottrlmonc.execute-api.ap-southeast-1.amazonaws.com/default/wechat-phone',
-  //           method: 'POST',
-  //           header: {
-  //             'content-type': 'application/json'
-  //           },
-  //           data: {
-  //             code: code,
-  //             encryptedData: encryptedData,
-  //             iv: iv
-  //           },
-  //           success(res) {
-  //             console.log('Phone number decrypted:', res.data);
-  //             let { phone, openid } = res.data;
-  //             let userInfo = {
-  //               ...that.data.userInfo,
-  //               phone: phone,
-  //               openid: openid
-  //             }
-  //             that.setData({
-  //               ...that.data,
-  //               userInfo
-  //             })
-  //           }
-  //         });
-  //       }
-  //     });
-  //   } else {
-  //     console.warn('User denied phone number access');
-  //   }
-  // },
-
-  // cancel() {
-  //   this.setData({ showModal: false });
-  // },
-
-  // confirm() {
-  //   this.setData({ showModal: false });
-  //   wx.navigateTo({
-  //     url: '/pages/checkout/index'
-  //   });
-  //   // You can now use this name, or send it to backend
-  // },
 
   onCloseModal() {
     this.setData({ showModal: false });

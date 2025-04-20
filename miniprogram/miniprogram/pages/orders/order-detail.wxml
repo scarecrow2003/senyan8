@@ -1,1 +1,36 @@
 <navigation-bar title="订单详情" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+<block wx:if="{{order.total_price}}">
+  <view class="summary">
+    <view class="invoice">订单号码: {{order.invoice}}</view>
+    <view class="date">下单日期: {{order.created_at}}</view>
+    <block wx:for="{{order.items}}" wx:key="id">
+      <view class="item-row">
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-qty">x{{item.quantity}}</text>
+        <text class="item-price">S${{item.price * item.quantity}}</text>
+      </view>
+    </block>
+    <view class="total-row">
+      <text class="total-label">总价:</text>
+      <text class="total-price">S${{order.total_price}}</text>
+    </view>
+    <view class="address">送货地址: {{order.user_address}}</view>
+    <view class="name">收货人: {{order.user_name}}</view>
+    <view class="phone">电话: {{order.user_phone}}</view>
+  </view>
+  <block wx:if="{{!paid}}">
+    <view class="paynow-section">
+      <text class="qr-title">请用PayNow扫码支付</text>
+      <view>
+        <canvas canvas-id="paynowQrcode" class="qr-code"></canvas>
+      </view>
+      <text class="qr-note">请用您的银行App扫码支付</text>
+      <block wx:if="{{qrcodeSaved}}">
+        <button class="confirm-btn" bindtap="confirmPayment">确定</button>
+      </block>
+      <block wx:else>
+        <button class="save-btn" bindtap="saveQrcode">点击保存二维码到手机</button>
+      </block>
+    </view>
+  </block>
+</block>

@@ -1,10 +1,133 @@
-.container {
-  padding: 20rpx;
+.page {
+  background: #fafafa;
 }
-.menu navigator {
-  margin-top: 30rpx;
-  background-color: #f7f7f7;
-  padding: 20rpx;
-  text-align: center;
+
+.banner {
+  height: 200rpx;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
   border-radius: 10rpx;
+}
+
+.category-bar {
+  display: flex;
+  padding: 20rpx 0;
+  white-space: nowrap;
+  background: #fff;
+}
+
+.category {
+  display: inline-block;
+  padding: 10rpx 20rpx;
+  margin: 0 10rpx;
+  border-radius: 30rpx;
+  background: #f5f5f5;
+  font-size: 26rpx;
+}
+
+.category.active {
+  background: #e91e63;
+  color: white;
+}
+
+.product-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 10rpx;
+}
+
+.product-card {
+  padding: 10rpx;
+  margin: 10rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
+  width: 320rpx;
+}
+
+.product-image {
+  width: 100%;
+  height: 300rpx;
+  border-radius: 8rpx;
+}
+
+.product-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-top: 12rpx;
+}
+
+.product-description {
+  font-size: 26rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.product-price {
+  font-size: 30rpx;
+  color: #e91e63;
+  margin-top: 8rpx;
+}
+
+.buy-button-wrapper {
+  width: 310rpx;
+  display: flex;
+}
+
+.buy-button {
+  all: unset;
+  width: 100%;
+  height: 60rpx;
+  background-color: #e91e63;
+  color: white;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  line-height: 60rpx;
+  text-align: center;
+  display: block;
+  margin: 10rpx;
+  padding:10rpx;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  height: 85rpx;
+}
+
+.quantity-control button {
+  width: 48rpx;
+  height: 48rpx;
+  background-color: #e91e63;
+  color: white;
+  border-radius: 50%;
+  font-size: 28rpx;
+  line-height: 48rpx;
+  text-align: center;
+  padding: 0;
+  border: none;
+}
+
+.quantity-control text {
+  font-size: 28rpx;
+}
+
+.floating-cart-btn {
+  position: fixed;
+  bottom: 40rpx;
+  right: 40rpx;
+  background-color: #e91e63;
+  color: white;
+  padding: 20rpx 36rpx;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  z-index: 999;
 }

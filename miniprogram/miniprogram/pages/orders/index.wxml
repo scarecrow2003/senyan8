@@ -4,17 +4,40 @@
     <view>无订单</view>
   </block>
   <block wx:else>
-    <block wx:for="{{orders}}" wx:key="id">
-      <view class="order-item horizontal">
-        <view class="vertical" bindtap="goToOrderDetail" data-id="{{item.id}}">
-          <text>定单号: {{item.invoice}}</text>
-          <text>价格: ${{item.total_price}}</text>
-          <text>下单时间: {{item.created_at}}</text>
+    <block wx:if="{{isAdmin}}">
+      <block wx:for="{{orders}}" wx:key="id">
+        <view class="order vertical">
+          <text>{{item.invoice}} || S${{item.total_price}} || {{item.created_at}}</text>
+          <block wx:for="{{item.items}}" wx:key="id">
+            <text>{{item.name}} S${{item.price}} x {{item.quantity}} = S${{item.price * item.quantity}}</text>
+          </block>
+          <block wx:if="{{item.status !== 'CONFIRMED' && item.status !== 'DELIVERED'}}">
+            <button class="confirm-btn" data-id="{{item.id}}" bindtap="confirmOrder">付款已核实</button>
+          </block>
+          <block wx:else>
+            <button class="download-btn" data-id="{{item.id}}" bindtap="downloadInvoice">下载账单</button>
+          </block>
         </view>
-        <view>
-          <button class="detail">查看详情</button>
+      </block>
+      <view class="aggregate vertical"></view>
+      <view>汇总</view>
+      <block wx:for="{{aggregate}}" wx:key="name">
+        <view>{{item.name}} x {{item.quantity}}</view>
+      </block>
+    </block>
+    <block wx:else>
+      <block wx:for="{{orders}}" wx:key="id">
+        <view class="order-item horizontal">
+          <view class="vertical" bindtap="goToOrderDetail" data-id="{{item.id}}">
+            <text>定单号: {{item.invoice}}</text>
+            <text>价格: S${{item.total_price}}</text>
+            <text>下单时间: {{item.created_at}}</text>
+          </view>
+          <view>
+            <button class="detail" bindtap="goToOrderDetail">查看详情</button>
+          </view>
         </view>
-      </view>
+      </block>
     </block>
   </block>
 </view>

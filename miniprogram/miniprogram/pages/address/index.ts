@@ -40,11 +40,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    const stored = wx.getStorageSync('addressList') || [{
-      id: Date.now(),
-      name: '342102',
-      address: '123 Orchard Road, #08-12, Singapore 238888'
-    }];
+    const stored = wx.getStorageSync('addressList') || [];
     this.setData({ addressList: stored });
   },
 

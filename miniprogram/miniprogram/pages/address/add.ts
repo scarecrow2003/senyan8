@@ -1,4 +1,5 @@
-// pages/address/add.ts
+const location_url = 'https://www.onemap.gov.sg/api/common/elastic/search';
+
 Page({
 
   /**
@@ -13,6 +14,10 @@ Page({
 
   onPostalCodeInput(e) {
     this.setData({ postalCode: e.detail.value });
+  },
+
+  onAddressInput(e) {
+    this.setData({ address: e.detail.value })
   },
 
   onLevelInput(e) {
@@ -30,8 +35,9 @@ Page({
       return;
     }
 
+    wx.showLoading({ title: '加载中' });
     wx.request({
-      url: 'https://developers.onemap.sg/commonapi/search',
+      url: location_url,
       method: 'GET',
       data: {
         searchVal: postalCode,
@@ -40,6 +46,7 @@ Page({
         pageNum: 1
       },
       success: (res) => {
+        wx.hideLoading();
         if (res.data.found > 0) {
           const address = res.data.results[0].ADDRESS;
           this.setData({ address });
@@ -48,6 +55,7 @@ Page({
         }
       },
       fail: () => {
+        wx.hideLoading();
         wx.showToast({ title: '网络错误', icon: 'none' });
       }
     });
@@ -63,8 +71,8 @@ Page({
 
     const newAddress = {
       id: Date.now(),
-      name: `Blk ${postalCode}`,
-      address: `${address}, ${level}-${unit}, Singapore ${postalCode}`
+      name: `邮编 ${postalCode}`,
+      address: `${level}-${unit}, ${address}`
     };
 
     const list = wx.getStorageSync('addressList') || [];

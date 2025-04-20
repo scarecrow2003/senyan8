@@ -7,7 +7,7 @@
 
   <view class="form-item">
     <text>地址</text>
-    <input type="text" value="{{address}}" placeholder="点击按钮自动填写" disabled />
+    <input type="text" value="{{address}}" placeholder="点击按钮自动填写" bindinput="onAddressInput" />
   </view>
 
   <view class="form-item">

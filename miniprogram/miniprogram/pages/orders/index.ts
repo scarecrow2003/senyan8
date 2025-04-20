@@ -1,3 +1,4 @@
+import { IAppOption } from "../../../typings";
 import { Order } from "../../types/types";
 const config = require('../../utils/config');
 
@@ -7,33 +8,160 @@ Page({
    * 页面的初始数据
    */
   data: {
-    orders: [] as Order[]
+    orders: [] as Order[],
+    isAdmin: false,
+    aggregate: []
   },
 
-  fetchOrders(openid) {
+  downloadInvoice(e: WechatMiniprogram.BaseEvent) {
     let that = this;
+    wx.showLoading({ title: '加载中' });
+    const id: string = e.currentTarget.dataset.id;
+    let orders = this.data.orders;
+    let index = this.data.orders.findIndex(order => order.id === id);
+    let order = this.data.orders[index];
+    if (!order.invoice) {
+      wx.request({
+        url: config.API_URL,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json'
+        },
+        data: {
+          action: 'generate_invoice',
+          id: id
+        },
+        success(res) {
+          if (res.statusCode == 200) {
+            orders[index].invoice = res.data.url;
+            that.setData({
+              orders: orders
+            });
+            that.openInvoice(res.data.url);
+          }
+        },
+        fail(res) {
+          wx.hideLoading();
+          console.error(err);
+        }
+      })
+    }
+  },
+
+  openInvoice(url) {
+    wx.downloadFile({
+      url: url,
+      success(res) {
+        const filePath = res.tempFilePath
+        wx.openDocument({
+          filePath: filePath,
+          success: function () {
+            wx.hideLoading();
+            console.log('Document opened successfully')
+          },
+          fail: function () {
+            wx.hideLoading();
+            wx.showToast({ title: '无法打开文件', icon: 'none' })
+          }
+        })
+      },
+      fail() {
+        wx.hideLoading();
+        wx.showToast({ title: '下载失败', icon: 'none' })
+      }
+    })
+  },
+
+  confirmOrder(e: WechatMiniprogram.BaseEvent) {
+    let that = this;
+    wx.showLoading({ title: '加载中' })
+    const id: string = e.currentTarget.dataset.id;
     wx.request({
-      url: `${config.API_URL}?action=get_orders&user_id=${openid}`,
+      url: config.API_URL,
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        action: 'confirm_order',
+        id: id
+      },
+      success(res) {
+        wx.hideLoading();
+        if (res.statusCode == 200) {
+          let orders = that.data.orders;
+          let index = orders.findIndex(order => order.id === id);
+          if (index != -1) {
+            orders[index].status = 'CONFIRMED';
+            that.setData({
+              orders: orders
+            })
+          }
+        }
+      },
+      fail(res) {
+        wx.hideLoading();
+        console.error(err);
+      }
+    })
+  },
+
+  fetchOrders(openid, role, phone) {
+    wx.showLoading({ title: '加载中' });
+    let that = this;
+    let url = `${config.API_URL}?action=get_orders&user_id=${openid}`;
+    if (role === 'admin') {
+      url += `&role=admin&phone=${encodeURIComponent(phone)}`;
+    }
+    wx.request({
+      url: url,
       method: 'GET',
       header: {
           'Content-Type': 'application/json'
       },
       success: function(res) {
+        wx.hideLoading();
         let orders: Order[] = res.data;
+        let isAdmin = role === 'admin';
+        let aggregateMap = new Map();
+        if (isAdmin) {
+          let nameMap = new Map();
+          let countMap = new Map();
+          orders.forEach(order => {
+            order.items.forEach(item => {
+              nameMap.set(item.id, item.name);
+              let currentValue = countMap.get(item.id);
+              if (currentValue) {
+                countMap.set(item.id, currentValue + item.quantity);
+              } else {
+                countMap.set(item.id, item.quantity);
+              }
+            })
+          });
+          for (const [key, value] of countMap.entries()) {
+            aggregateMap.set(nameMap.get(key), value);
+          }
+        }
         that.setData({
-          orders: orders
+          orders: orders,
+          isAdmin: isAdmin,
+          aggregate: Array.from(aggregateMap, ([key, value]) => ({ name: key, quantity: value}))
         });
       },
       fail: function(err) {
-          console.error(err);
+        wx.hideLoading();
+        console.error(err);
       }
     })
   },
 
   goToOrderDetail(e) {
     const orderId = e.currentTarget.dataset.id;
+    const selectedOrder = this.data.orders.find((order) => order.id === orderId);
+    const app = getApp<IAppOption>();
+    app.globalData.selectedOrder = selectedOrder;
     wx.navigateTo({
-      url: `/pages/order-detail/order-detail?id=${orderId}`
+      url: `/pages/orders/order-detail`
     });
   },
 
@@ -43,7 +171,7 @@ Page({
   onLoad() {
     const userInfo = wx.getStorageSync('userInfo') || {};
     if (userInfo.openid) {
-      this.fetchOrders(userInfo.openid);
+      this.fetchOrders(userInfo.openid, userInfo.role, userInfo.phone);
     } else {
       wx.showToast({
         title: '请先登录',

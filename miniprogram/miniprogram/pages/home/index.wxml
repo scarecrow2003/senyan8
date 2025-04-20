@@ -1,9 +1,42 @@
-<view class="container">
-  <!-- <image src="/images/banner.jpg" mode="widthFix" /> -->
-  <view class="menu">
-    <navigator url="/pages/products/index">🌸 View Flowers</navigator>
+<navigation-bar title="森焱有花" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<view class="page">
+  <!-- Banner -->
+  <swiper class="banner" autoplay indicator-dots circular>
+    <block wx:for="{{banners}}" wx:key="url">
+      <swiper-item>
+        <image class="banner-image" src="{{item.url}}" mode="aspectFill" />
+      </swiper-item>
+    </block>
+  </swiper>
+
+  <!-- Categories -->
+  <scroll-view class="category-bar" scroll-x>
+    <view class="category {{selectedCategory === item.id ? 'active' : ''}}" wx:for="{{categories}}" wx:key="id" bindtap="onCategorySelect" data-id="{{item.id}}">
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- Products -->
+  <view class="product-grid">
+    <view class="product-card" 
+      wx:for="{{filterItems}}" 
+      wx:key="id" 
+      data-id="{{item.id}}">
+      <image src="{{item.url}}" class="product-image" mode="aspectFill" />
+      <view class="product-name">{{item.name}}</view>
+      <view class="product-description">{{item.description}}</view>
+      <view class="product-price">S${{item.price}}</view>
+      <view wx:if="{{item.quantity === 0}}" class="buy-button-wrapper">
+        <button class="buy-button" bindtap="addToCart" data-id="{{item.id}}">购买</button>
+      </view>
+      <view wx:else class="quantity-control">
+        <button bindtap="decreaseQty" data-id="{{item.id}}">-</button>
+        <text>{{item.quantity}}</text>
+        <button bindtap="increaseQty" data-id="{{item.id}}">+</button>
+      </view>
+    </view>
   </view>
-  <view>
-    <button bindtap="logout">退出</button>
-  </view>
+</view>
+<view class="floating-cart-btn" bindtap="goToCart">
+  🛒 结算
 </view>

@@ -11,7 +11,8 @@ Page({
       name: '',
       phone: '',
       openid: '',
-      avatar: ''
+      avatar: '',
+      role: ''
     }
   },
 
@@ -32,7 +33,8 @@ Page({
         name: '',
         phone: '',
         openid: '',
-        avatar: ''
+        avatar: '',
+        role: ''
       }
     })
   },
