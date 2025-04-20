@@ -1,11 +1,13 @@
 import axios from 'axios';
 import crypto from 'crypto';
 import AWS from 'aws-sdk';
-// import ExcelJS from 'exceljs';
 import { v4 as uuidv4 } from 'uuid';
+import ExcelJS from 'exceljs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
-// const s3 = new AWS.S3();
+const s3 = new AWS.S3();
 
 export const handler = async (event) => {
   try {
@@ -113,7 +115,7 @@ const getAdminOrders = async (userId, date, phone) => {
     const orders = await dynamo.query(orderParams).promise();
     return {
         statusCode: 200,
-        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, total_price, invoice, user_address, user_name, user_phone, invoice }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone, invoice })))
+        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, invoice, total_price, user_address, user_name, user_phone, invoice_url }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone, invoice_url })))
     }
 }
 
@@ -137,7 +139,7 @@ const getOrders = async (userId) => {
     const orders = await dynamo.query(params).promise();
     return {
         statusCode: 200,
-        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, total_price, invoice, user_address, user_name, user_phone, invoice }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone, invoice })))
+        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, total_price, invoice, user_address, user_name, user_phone, invoice_url }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone, invoice_url })))
     };
 }
 
@@ -162,12 +164,12 @@ const generateInvoice = async (body) => {
             body: JSON.stringify({ error: 'Order not exist'})
         };
     }
-    if (order.invoice) {
+    if (order.Item.invoice_url) {
         return {
             statusCode: 200,
-            body: JSON.stringify({ url: order.invoice })
+            body: JSON.stringify({ url: order.Item.invoice_url })
         };
-    } else if (order.status !== 'CONFIRMED') {
+    } else if (order.Item.status !== 'CONFIRMED') {
         return {
             statusCode: 400,
             body: JSON.stringify({ error: 'Please make payment'})
@@ -180,49 +182,65 @@ const generateInvoice = async (body) => {
 const generateExcel = async (order) => {
     const { id } = order;
     try {
-        // const workbook = new ExcelJS.Workbook();
-        // const worksheet = workbook.addWorksheet('Sheet 1');
+        const workbook = new ExcelJS.Workbook();
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const templatePath = path.resolve(__dirname, 'resources/template.xlsx');
+        await workbook.xlsx.readFile(templatePath);
+        const worksheet = workbook.getWorksheet('template');
 
-        // worksheet.addRow(['SENYAN8']);
-        // worksheet.addRow(['102B Bidadari Pk Dr #07-219 Singapore 342102']);
-        // worksheet.addRow(['Tel: 96463268']);
-        // worksheet.addRow(['日期', order.create_date]);
-        // worksheet.addRow(['No\n序号', 'Name\n品种', 'Unit Price($)\n单价', 'Quantity\n数量', 'Total\n总价', 'Remarks\n备注']);
-        // let no = 1;
-        // for (const item of order.items) {
-        //     worksheet.addRow([no++, item.name, item.price, item.quantity, item.price*item.quantity]);
-        //   }
+        worksheet.getCell('B2').value = order.create_date;
+        worksheet.getCell('E2').value = order.invoice;
+        worksheet.getCell('B4').value = order.user_address;
+        worksheet.getCell('D4').value = order.user_address;
+        worksheet.getCell('B5').value = order.user_phone;
+        worksheet.getCell('D5').value = order.user_phone;
+
+        let no = 1;
+        let total = 0;
+        for (const item of order.items) {
+            let row = 7 + no;
+            worksheet.getCell('A' + row).value = no;
+            worksheet.getCell('B' + row).value = item.name;
+            worksheet.getCell('C' + row).value = item.quantity;
+            worksheet.getCell('D' + row).value = item.price;
+            let subtotal = item.quantity * item.price;
+            worksheet.getCell('E' + row).value = subtotal;
+            total += subtotal;
+            no++;
+        }
+        worksheet.getCell('E24').value = total;
     
-        // const buffer = await workbook.xlsx.writeBuffer();
+        const buffer = await workbook.xlsx.writeBuffer();
 
-        // const uploadParams = {
-        //     Bucket: 'senyan8-invoice',
-        //     Key: `${order.create_date}/${order.invoice}.xlsx`,
-        //     Body: buffer,
-        //     ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        // };
+        const uploadParams = {
+            Bucket: 'senyan8-invoice',
+            Key: `${order.create_date}/${order.invoice}-${generateRandomString(6)}.xlsx`,
+            Body: buffer,
+            ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        };
           
-        // await s3.putObject(uploadParams).promise();
-        // const url = `https://${uploadParams.Bucket}.s3.${s3.config.region}.amazonaws.com/${uploadParams.key}`;
-        // const updateResult = await dynamo.update({
-        //     TableName: 'order',
-        //     Key: {
-        //         id: id
-        //     },
-        //     UpdateExpression: 'SET #invoice = :invoice',
-        //     ExpressionAttributeNames: {
-        //         '#invoice': 'invoice'
-        //     },
-        //     ExpressionAttributeValues: {
-        //         ':invoice': url
-        //     },
-        //     ReturnValues: 'ALL_NEW'
-        // }).promise();
-        // const updatedUrl = updateResult.Attributes.invoice;
+        await s3.putObject(uploadParams).promise();
+        const url = `https://${uploadParams.Bucket}.s3.${s3.config.region}.amazonaws.com/${uploadParams.Key}`;
+        const updateResult = await dynamo.update({
+            TableName: 'order',
+            Key: {
+                id: id
+            },
+            UpdateExpression: 'SET #invoiceUrl = :invoiceUrl',
+            ExpressionAttributeNames: {
+                '#invoiceUrl': 'invoice_url'
+            },
+            ExpressionAttributeValues: {
+                ':invoiceUrl': url
+            },
+            ReturnValues: 'ALL_NEW'
+        }).promise();
+        const updatedUrl = updateResult.Attributes.invoice_url;
 
         return {
           statusCode: 200,
-          body: JSON.stringify({ url: 'updatedUrl' })
+          body: JSON.stringify({ url: updatedUrl })
         };
       } catch (error) {
         console.error('Error uploading Excel:', error);
@@ -436,4 +454,9 @@ const verifyUser = async (body) => {
       statusCode: 200,
       body: JSON.stringify({ phone: phone,  openid: openid })
     };
+}
+
+const generateRandomString = (length) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }

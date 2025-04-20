@@ -20,7 +20,7 @@ Page({
     let orders = this.data.orders;
     let index = this.data.orders.findIndex(order => order.id === id);
     let order = this.data.orders[index];
-    if (!order.invoice) {
+    if (!order.invoice_url) {
       wx.request({
         url: config.API_URL,
         method: 'POST',
@@ -33,18 +33,23 @@ Page({
         },
         success(res) {
           if (res.statusCode == 200) {
-            orders[index].invoice = res.data.url;
+            orders[index].invoice_url = res.data.url;
             that.setData({
               orders: orders
             });
             that.openInvoice(res.data.url);
+          } else {
+            wx.hideLoading();
+            wx.showToast({ title: '下载失败', icon: 'none' })
           }
         },
         fail(res) {
           wx.hideLoading();
-          console.error(err);
+          wx.showToast({ title: '下载失败', icon: 'none' })
         }
       })
+    } else {
+      this.openInvoice(order.invoice_url);
     }
   },
 
@@ -55,6 +60,7 @@ Page({
         const filePath = res.tempFilePath
         wx.openDocument({
           filePath: filePath,
+          fileType: 'xlsx',
           success: function () {
             wx.hideLoading();
             console.log('Document opened successfully')

@@ -41,5 +41,6 @@ export interface Order {
   invoice: string,
   user_address: string,
   user_name: string,
-  user_phone: string
+  user_phone: string,
+  invoice_url: string
 }
