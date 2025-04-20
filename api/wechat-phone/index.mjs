@@ -1,9 +1,11 @@
 import axios from 'axios';
 import crypto from 'crypto';
 import AWS from 'aws-sdk';
+// import ExcelJS from 'exceljs';
 import { v4 as uuidv4 } from 'uuid';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
+// const s3 = new AWS.S3();
 
 export const handler = async (event) => {
   try {
@@ -17,7 +19,8 @@ export const handler = async (event) => {
             let role = event.queryStringParameters.role;
             if (role === 'admin') {
                 let date = event.queryStringParameters.date;
-                return getAdminOrders(userId, date);
+                let phone = decodeURIComponent(event.queryStringParameters.phone);
+                return getAdminOrders(userId, date, phone);
             } else {
                 return getOrders(userId);
             }
@@ -39,6 +42,10 @@ export const handler = async (event) => {
             return await updateUser(body);
         } else if (body.action === 'create_order') {
             return await createOrder(body);
+        } else if (body.action === 'confirm_order') {
+            return await confirmOrder(body);
+        } else if (body.action === 'generate_invoice') {
+            return await generateInvoice(body);
         } else {
             return {
                 statusCode: 400,
@@ -55,15 +62,39 @@ export const handler = async (event) => {
   }
 };
 
-const getAdminOrders = async (userId, date) => {
+const confirmOrder = async (body) => {
+    const { id } = body;
+    const updateResult = await dynamo.update({
+        TableName: 'order',
+        Key: {
+          id: id
+        },
+        UpdateExpression: 'SET #status = :status',
+        ExpressionAttributeNames: {
+          '#status': 'status'
+        },
+        ExpressionAttributeValues: {
+          ':status': 'CONFIRMED'
+        },
+        ReturnValues: 'ALL_NEW'
+      }).promise();
+    const updatedStatus = updateResult.Attributes.status;
+    return {
+        statusCode: 200,
+        body: JSON.stringify({ status: updatedStatus })
+    };
+}
+
+const getAdminOrders = async (userId, date, phone) => {
     const userParams = {
         TableName: 'wechat_users',
         Key: {
-          openid: userId
+          openid: userId,
+          phone: phone
         }
       };
     const user = await dynamo.get(userParams).promise();
-    if (user.role !== 'admin') {
+    if (user.Item.role !== 'admin') {
         return {
             statusCode: 404,
             body: JSON.stringify({ error: 'Permission denied'})
@@ -82,7 +113,7 @@ const getAdminOrders = async (userId, date) => {
     const orders = await dynamo.query(orderParams).promise();
     return {
         statusCode: 200,
-        body: JSON.stringify(orders.map(({ id, created_at, items, status, total_price, invoice, user_address, user_name, user_phone }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone })))
+        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, total_price, invoice, user_address, user_name, user_phone, invoice }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone, invoice })))
     }
 }
 
@@ -106,8 +137,100 @@ const getOrders = async (userId) => {
     const orders = await dynamo.query(params).promise();
     return {
         statusCode: 200,
-        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, total_price, invoice }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice })))
+        body: JSON.stringify(orders.Items.map(({ id, created_at, items, status, total_price, invoice, user_address, user_name, user_phone, invoice }) => ({ id, created_at: new Date(created_at).toISOString().replace('T', ' ').substring(0, 19), items, status, total_price, invoice, user_address, user_name, user_phone, invoice })))
     };
+}
+
+const generateInvoice = async (body) => {
+    const { id } = body;
+    if (!id) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Bad request'})
+        };
+    }
+    const params = {
+        TableName: 'order',
+        Key: {
+          id: id
+        }
+      };
+    const order = await dynamo.get(params).promise();
+    if (!order.Item) {
+        return {
+            statusCode: 404,
+            body: JSON.stringify({ error: 'Order not exist'})
+        };
+    }
+    if (order.invoice) {
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ url: order.invoice })
+        };
+    } else if (order.status !== 'CONFIRMED') {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Please make payment'})
+        };
+    } else {
+        return await generateExcel(order.Item);
+    }
+}
+
+const generateExcel = async (order) => {
+    const { id } = order;
+    try {
+        // const workbook = new ExcelJS.Workbook();
+        // const worksheet = workbook.addWorksheet('Sheet 1');
+
+        // worksheet.addRow(['SENYAN8']);
+        // worksheet.addRow(['102B Bidadari Pk Dr #07-219 Singapore 342102']);
+        // worksheet.addRow(['Tel: 96463268']);
+        // worksheet.addRow(['日期', order.create_date]);
+        // worksheet.addRow(['No\n序号', 'Name\n品种', 'Unit Price($)\n单价', 'Quantity\n数量', 'Total\n总价', 'Remarks\n备注']);
+        // let no = 1;
+        // for (const item of order.items) {
+        //     worksheet.addRow([no++, item.name, item.price, item.quantity, item.price*item.quantity]);
+        //   }
+    
+        // const buffer = await workbook.xlsx.writeBuffer();
+
+        // const uploadParams = {
+        //     Bucket: 'senyan8-invoice',
+        //     Key: `${order.create_date}/${order.invoice}.xlsx`,
+        //     Body: buffer,
+        //     ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        // };
+          
+        // await s3.putObject(uploadParams).promise();
+        // const url = `https://${uploadParams.Bucket}.s3.${s3.config.region}.amazonaws.com/${uploadParams.key}`;
+        // const updateResult = await dynamo.update({
+        //     TableName: 'order',
+        //     Key: {
+        //         id: id
+        //     },
+        //     UpdateExpression: 'SET #invoice = :invoice',
+        //     ExpressionAttributeNames: {
+        //         '#invoice': 'invoice'
+        //     },
+        //     ExpressionAttributeValues: {
+        //         ':invoice': url
+        //     },
+        //     ReturnValues: 'ALL_NEW'
+        // }).promise();
+        // const updatedUrl = updateResult.Attributes.invoice;
+
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ url: 'updatedUrl' })
+        };
+      } catch (error) {
+        console.error('Error uploading Excel:', error);
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ error: 'Failed to get invoice file' }),
+        };
+      }
 }
 
 
@@ -234,9 +357,14 @@ const updateUser = async (body) => {
       },
       ReturnValues: 'ALL_NEW'
     }).promise();
+    const user = await dynamo.get({
+        TableName: 'wechat_users',
+        Key: { openid: openid,
+            phone: phone }
+    }).promise();
     return {
         statusCode: 200,
-        body: JSON.stringify({ msg: 'Name updated' })
+        body: JSON.stringify({ role: user.Item.role })
     };
 }
 
